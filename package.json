@@ -1,0 +1,59 @@
+{
+  "name": "@seneca/refer",
+  "version": "0.5.0",
+  "main": "dist/refer.js",
+  "type": "commonjs",
+  "types": "dist/refer.d.ts",
+  "description": "User Referral business logic plugin for the Seneca platform.",
+  "homepage": "https://github.com/senecajs/seneca-refer",
+  "keywords": [
+    "seneca",
+    "refer"
+  ],
+  "author": "Richard Rodger - richardrodger.com",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/senecajs/seneca-refer.git"
+  },
+  "scripts": {
+    "prettier": "prettier --write .",
+    "test": "jest --coverage",
+    "test-some": "jest -t",
+    "test-watch": "jest --coverage --watchAll",
+    "watch": "tsc -w -d",
+    "build": "tsc -d",
+    "doc": "seneca-doc",
+    "clean": "rm -rf node_modules yarn.lock package-lock.json",
+    "reset": "npm run clean && npm i && npm test",
+    "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
+    "repo-publish": "npm run clean && npm i && npm run repo-publish-quick",
+    "repo-publish-quick": "npm run build && npm run test && npm run doc && npm run repo-tag && npm publish --access public --registry https://registry.npmjs.org "
+  },
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "devDependencies": {
+    "@seneca/maintain": "^0.0.22",
+    "@types/jest": "^28.1.7",
+    "@types/node": "^18.7.11",
+    "esbuild": "^0.15.5",
+    "esbuild-jest": "^0.5.0",
+    "jest": "^28.1.3",
+    "prettier": "2.7.1",
+    "seneca-doc": "^2.1.3",
+    "seneca-msg-test": "^3.4.0",
+    "typescript": "^4.7.4"
+  },
+  "peerDependencies": {
+    "@seneca/entity-util": ">=1",
+    "seneca": ">=3",
+    "seneca-entity": ">=18",
+    "seneca-promisify": ">=3"
+  }
+}
