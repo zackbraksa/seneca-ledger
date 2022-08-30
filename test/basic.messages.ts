@@ -1,21 +1,21 @@
-// Basic referral: sent email invite to a friend
+// Basic ledgerral: sent email invite to a friend
 
 export default {
   print: false,
-  pattern: 'biz:refer',
+  pattern: 'biz:ledger',
   allow: { missing: true },
 
   calls: [
-    // User with id=u01 sends referal to friend alice@example.com
+    // User with id=u01 sends ledgeral to friend alice@example.com
     // Creating:
-    //   - refer/entry referral record
-    //   - refer/occur event record
+    //   - ledger/entry ledgerral record
+    //   - ledger/occur event record
     //   - sent email to alice@example.com (mock/email record)
     // Email sending to be implemented with @seneca/mail later
     // NOTE: implementation is just hard-coded!
     {
       name: 'create-alice',
-      pattern: 'create:entry', // call { biz:refer, create:entry, ...params }
+      pattern: 'create:entry', // call { biz:ledger, create:entry, ...params }
       params: {
         user_id: 'u01',
         kind: 'standard', // avoid using 'type', 'kind' has fewer conflicts
@@ -40,9 +40,9 @@ export default {
     // Print entire database
     // { print: true, pattern: 'biz:null,role:mem-store,cmd:dump' },
 
-    // Validate the refer/entry exists and is correct
+    // Validate the ledger/entry exists and is correct
     {
-      pattern: 'biz:null,role:entity,base:refer,name:entry,cmd:list',
+      pattern: 'biz:null,role:entity,base:ledger,name:entry,cmd:list',
       out: [
         {
           id: '`create-alice:out.entry.id`',
@@ -53,12 +53,12 @@ export default {
       ],
     },
 
-    // Validate the refer/occur exists and is correct
+    // Validate the ledger/occur exists and is correct
     {
-      pattern: 'biz:null,role:entity,base:refer,name:occur,cmd:list',
+      pattern: 'biz:null,role:entity,base:ledger,name:occur,cmd:list',
       out: [
         {
-          // back references, see: https://github.com/rjrodger/inks
+          // back ledgerences, see: https://github.com/rjrodger/inks
           id: '`create-alice:out.occur.id`',
           entry_id: '`create-alice:out.entry.id`',
           entry_kind: 'standard',
@@ -76,13 +76,13 @@ export default {
         {
           toaddr: 'alice@example.com',
           fromaddr: 'invite@example.com',
-          kind: 'refer',
+          kind: 'ledger',
           code: 'invite',
         },
       ],
     },
 
-    // Accept the referral
+    // Accept the ledgerral
     {
       name: 'accept-alice-token',
       pattern: 'accept:entry',
@@ -107,9 +107,9 @@ export default {
       },
     },
 
-    // Validate new refer/occur record
+    // Validate new ledger/occur record
     {
-      pattern: 'biz:null,role:entity,base:refer,name:occur,cmd:load',
+      pattern: 'biz:null,role:entity,base:ledger,name:occur,cmd:load',
       params: { q: { kind: 'accept' } },
       out: {
         entry_kind: 'standard',
@@ -120,9 +120,9 @@ export default {
       },
     },
 
-    // Validate new refer/reward updated
+    // Validate new ledger/reward updated
     {
-      pattern: 'biz:null,role:entity,base:refer,name:reward,cmd:load',
+      pattern: 'biz:null,role:entity,base:ledger,name:reward,cmd:load',
       params: {
         q: {
           entry_id: '`create-alice:out.entry.id`',
@@ -153,7 +153,7 @@ export default {
 }
 
 /* ADDITIONAL SCENARIOS
- * Another user send a referral to alice@example.com
+ * Another user send a ledgerral to alice@example.com
  *   - before acceptance
  *   - after acceptance
  */

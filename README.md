@@ -1,15 +1,15 @@
-# @seneca/refer
+# @seneca/ledger
 
-> _Seneca Refer_ is a plugin for [Seneca](http://senecajs.org)
+> _Seneca Ledger_ is a plugin for [Seneca](http://senecajs.org)
 
-    User referral business logic plugin for the Seneca platform.
+    User ledgerral business logic plugin for the Seneca platform.
 
-[![npm version](https://img.shields.io/npm/v/@seneca/refer.svg)](https://npmjs.com/package/@seneca/refer)
-[![build](https://github.com/senecajs/seneca-refer/actions/workflows/build.yml/badge.svg)](https://github.com/senecajs/seneca-refer/actions/workflows/build.yml)
-[![Coverage Status](https://coveralls.io/repos/github/senecajs/seneca-refer/badge.svg?branch=main)](https://coveralls.io/github/senecajs/seneca-refer?branch=main)
-[![Known Vulnerabilities](https://snyk.io/test/github/senecajs/seneca-refer/badge.svg)](https://snyk.io/test/github/senecajs/seneca-refer)
+[![npm version](https://img.shields.io/npm/v/@seneca/ledger.svg)](https://npmjs.com/package/@seneca/ledger)
+[![build](https://github.com/senecajs/seneca-ledger/actions/workflows/build.yml/badge.svg)](https://github.com/senecajs/seneca-ledger/actions/workflows/build.yml)
+[![Coverage Status](https://coveralls.io/repos/github/senecajs/seneca-ledger/badge.svg?branch=main)](https://coveralls.io/github/senecajs/seneca-ledger?branch=main)
+[![Known Vulnerabilities](https://snyk.io/test/github/senecajs/seneca-ledger/badge.svg)](https://snyk.io/test/github/senecajs/seneca-ledger)
 [![DeepScan grade](https://deepscan.io/api/teams/5016/projects/20872/branches/581541/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=5016&pid=20872&bid=581541)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8242b80adb8acb685afd/maintainability)](https://codeclimate.com/github/senecajs/seneca-refer/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8242b80adb8acb685afd/maintainability)](https://codeclimate.com/github/senecajs/seneca-ledger/maintainability)
 
 | ![Voxgig](https://www.voxgig.com/res/img/vgt01r.png) | This open source module is sponsored and supported by [Voxgig](https://www.voxgig.com). |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -17,7 +17,7 @@
 ## Install
 
 ```sh
-$ npm install @seneca/refer
+$ npm install @seneca/ledger
 ```
 
 ## Quick Example
@@ -25,7 +25,7 @@ $ npm install @seneca/refer
 ```js
 // Setup - get the key value (<SECRET>) separately from a vault or
 // environment variable.
-Seneca().use('refer', {})
+Seneca().use('ledger', {})
 
 TODO
 ```
@@ -43,15 +43,15 @@ _None._
 
 ## Action Patterns
 
-* [accept:entry,biz:refer](#-acceptentrybizrefer-)
-* [biz:refer,create:entry](#-bizrefercreateentry-)
-* [biz:refer,ensure:entry](#-bizreferensureentry-)
-* [biz:refer,give:award](#-bizrefergiveaward-)
-* [biz:refer,load:entry](#-bizreferloadentry-)
-* [biz:refer,load:rules](#-bizreferloadrules-)
-* [biz:refer,lost:entry](#-bizreferlostentry-)
-* [biz:refer,update:occur](#-bizreferupdateoccur-)
-* [biz:refer,update:entry](#-bizreferupdateentry-)
+* [accept:entry,biz:ledger](#-acceptentrybizledger-)
+* [biz:ledger,create:entry](#-bizledgercreateentry-)
+* [biz:ledger,ensure:entry](#-bizledgerensureentry-)
+* [biz:ledger,give:award](#-bizledgergiveaward-)
+* [biz:ledger,load:entry](#-bizledgerloadentry-)
+* [biz:ledger,load:rules](#-bizledgerloadrules-)
+* [biz:ledger,lost:entry](#-bizledgerlostentry-)
+* [biz:ledger,update:occur](#-bizledgerupdateoccur-)
+* [biz:ledger,update:entry](#-bizledgerupdateentry-)
 
 
 <!--END:action-list-->
@@ -61,63 +61,63 @@ _None._
 
 ## Action Descriptions
 
-### &laquo; `accept:entry,biz:refer` &raquo;
+### &laquo; `accept:entry,biz:ledger` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,create:entry` &raquo;
+### &laquo; `biz:ledger,create:entry` &raquo;
 
-Create referral entry.
+Create ledgerral entry.
 
 
 
 ----------
-### &laquo; `biz:refer,ensure:entry` &raquo;
+### &laquo; `biz:ledger,ensure:entry` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,give:award` &raquo;
+### &laquo; `biz:ledger,give:award` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,load:entry` &raquo;
+### &laquo; `biz:ledger,load:entry` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,load:rules` &raquo;
+### &laquo; `biz:ledger,load:rules` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,lost:entry` &raquo;
+### &laquo; `biz:ledger,lost:entry` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,update:occur` &raquo;
+### &laquo; `biz:ledger,update:occur` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:refer,update:entry` &raquo;
+### &laquo; `biz:ledger,update:entry` &raquo;
 
 No description provided.
 

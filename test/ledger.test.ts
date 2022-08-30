@@ -4,8 +4,8 @@ import Seneca from 'seneca'
 import SenecaMsgTest from 'seneca-msg-test'
 // import { Maintain } from '@seneca/maintain'
 
-import ReferDoc from '../src/refer-doc'
-import Refer from '../src/refer'
+import LedgerDoc from '../src/ledger-doc'
+import Ledger from '../src/ledger'
 
 import BasicMessages from './basic.messages'
 import ManyMessages from './many.messages'
@@ -13,14 +13,14 @@ import ConflictMessages from './conflict.messages'
 import InviteMessages from './invite.messages'
 
 
-describe('refer', () => {
+describe('ledger', () => {
   test('happy', async () => {
-    expect(ReferDoc).toBeDefined()
+    expect(LedgerDoc).toBeDefined()
     const seneca = Seneca({ legacy: false })
       .test()
       .use('promisify')
       .use('entity')
-      .use(Refer)
+      .use(Ledger)
     await seneca.ready()
   })
 
@@ -30,11 +30,11 @@ describe('refer', () => {
       .test()
       .use('promisify')
       .use('entity')
-      .use(Refer)
+      .use(Ledger)
     await seneca.ready()
 
-    let genToken = seneca.export('refer/genToken')
-    let genCode = seneca.export('refer/genCode')
+    let genToken = seneca.export('ledger/genToken')
+    let genCode = seneca.export('ledger/genCode')
 
     expect(genToken().length).toEqual(16)
     expect(genCode().length).toEqual(6)
@@ -78,7 +78,7 @@ async function makeSeneca() {
 
   await makeBasicRules(seneca)
 
-  seneca.use(Refer)
+  seneca.use(Ledger)
 
   await makeMockActions(seneca)
 
@@ -91,8 +91,8 @@ async function makeSeneca() {
 }
 
 async function makeBasicRules(seneca: any) {
-  await seneca.entity('refer/rule').save$({
-    ent: 'refer/occur',
+  await seneca.entity('ledger/rule').save$({
+    ent: 'ledger/occur',
     cmd: 'save',
     where: { kind: 'create' },
     call: [
@@ -103,13 +103,13 @@ async function makeBasicRules(seneca: any) {
         subject: '`config:sender.invite.subject`',
         toaddr: '`occur:sender.invite.subject`',
         code: 'invite',
-        kind: 'refer',
+        kind: 'ledger',
       },
     ],
   })
 
-  await seneca.entity('refer/rule').save$({
-    ent: 'refer/occur',
+  await seneca.entity('ledger/rule').save$({
+    ent: 'ledger/occur',
     cmd: 'save',
     where: { kind: 'accept' },
     call: [
@@ -118,19 +118,19 @@ async function makeBasicRules(seneca: any) {
         award: 'incr',
         field: 'count',
         give: 'award',
-        biz: 'refer',
+        biz: 'ledger',
       },
     ],
   })
 
-  await seneca.entity('refer/rule').save$({
-    ent: 'refer/occur',
+  await seneca.entity('ledger/rule').save$({
+    ent: 'ledger/occur',
     cmd: 'save',
     where: { kind: 'lost' },
     call: [
       {
         lost: 'entry',
-        biz: 'refer',
+        biz: 'ledger',
       },
     ],
   })
