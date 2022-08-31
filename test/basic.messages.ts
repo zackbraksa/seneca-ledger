@@ -1,7 +1,7 @@
 // Basic ledgerral: sent email invite to a friend
 
 export default {
-  print: true,
+  print: false,
   pattern: 'biz:ledger',
   allow: { missing: true },
 
@@ -15,11 +15,13 @@ export default {
       name: 'shop-a0',
       pattern: 'create:account',
       params: {
-        id: 'shop-a0',
-        oref: 'o0',
-        path: 'Asset',
-        name: 'Cash',
-        normal: 'debit'
+        account: {
+          id$: 'shop-a0',
+          oref: 'o0',
+          path: 'Asset',
+          name: 'Cash',
+          normal: 'debit'
+        }
       },
       out: {
         ok: true,
@@ -39,14 +41,43 @@ export default {
     },
 
     {
+      name: 'shop-ua0',
+      pattern: 'update:account',
+      params: {
+        id: 'shop-a0',
+        account: {
+          xfoo: 1  // custom field
+        }
+      },
+      out: {
+        ok: true,
+        account: {
+          id: 'shop-a0',
+          path0: 'Asset',
+          path1: '',
+          path2: '',
+          org_id: 'o0',
+          oref: 'o0',
+          aref: 'o0/Asset/Cash',
+          path: ['Asset'],
+          name: 'Cash',
+          normal: 'debit',
+          xfoo: 1,
+        }
+      }
+    },
+
+    {
       name: 'shop-a1',
       pattern: 'create:account',
       params: {
-        id: 'shop-a1',
-        oref: 'o0',
-        path: 'Income',
-        name: 'Sales',
-        normal: 'credit'
+        account: {
+          id$: 'shop-a1',
+          oref: 'o0',
+          path: 'Income',
+          name: 'Sales',
+          normal: 'credit'
+        }
       },
       out: {
         ok: true,
@@ -69,11 +100,13 @@ export default {
       name: 'shop-a2',
       pattern: 'create:account',
       params: {
-        id: 'shop-a2',
-        oref: 'o0',
-        path: 'Asset',
-        name: 'Office',
-        normal: 'debit'
+        account: {
+          id$: 'shop-a2',
+          oref: 'o0',
+          path: 'Asset',
+          name: 'Office',
+          normal: 'debit'
+        }
       },
       out: {
         ok: true,
@@ -92,17 +125,43 @@ export default {
       }
     },
 
+
     // Open a book
 
     {
       name: 'shop-b0',
       pattern: 'create:book',
       params: {
+        book: {
+          id$: 'shop-b0',
+          oref: 'o0',
+          name: 'Q1',
+          start: 20220101,
+        }
+      },
+      out: {
+        ok: true,
+        book: {
+          id: 'shop-b0',
+          org_id: 'o0',
+          oref: 'o0',
+          bref: 'o0/Q1/20220101',
+          name: 'Q1',
+          start: 20220101,
+          time: { kind: 'basic' },
+        }
+      }
+    },
+
+    {
+      name: 'shop-ub0',
+      pattern: 'update:book',
+      params: {
         id: 'shop-b0',
-        oref: 'o0',
-        name: 'Q1',
-        start: 20220101,
-        end: 20220331,
+        book: {
+          end: 20220331,
+          xbar: 2 // custom field
+        }
       },
       out: {
         ok: true,
@@ -115,9 +174,11 @@ export default {
           start: 20220101,
           end: 20220331,
           time: { kind: 'basic' },
+          xbar: 2
         }
       }
     },
+
 
     // Post journal entries
 

@@ -2,7 +2,7 @@
 
 > _Seneca Ledger_ is a plugin for [Seneca](http://senecajs.org)
 
-    User ledgerral business logic plugin for the Seneca platform.
+    Ledger business logic plugin for the Seneca platform.
 
 [![npm version](https://img.shields.io/npm/v/@seneca/ledger.svg)](https://npmjs.com/package/@seneca/ledger)
 [![build](https://github.com/senecajs/seneca-ledger/actions/workflows/build.yml/badge.svg)](https://github.com/senecajs/seneca-ledger/actions/workflows/build.yml)
@@ -23,8 +23,6 @@ $ npm install @seneca/ledger
 ## Quick Example
 
 ```js
-// Setup - get the key value (<SECRET>) separately from a vault or
-// environment variable.
 Seneca().use('ledger', {})
 
 TODO
@@ -43,15 +41,20 @@ _None._
 
 ## Action Patterns
 
-* [accept:entry,biz:ledger](#-acceptentrybizledger-)
+* [balance:account,biz:ledger](#-balanceaccountbizledger-)
+* [balance:book,biz:ledger](#-balancebookbizledger-)
+* [biz:ledger,create:account](#-bizledgercreateaccount-)
+* [biz:ledger,create:book](#-bizledgercreatebook-)
 * [biz:ledger,create:entry](#-bizledgercreateentry-)
-* [biz:ledger,ensure:entry](#-bizledgerensureentry-)
-* [biz:ledger,give:award](#-bizledgergiveaward-)
-* [biz:ledger,load:entry](#-bizledgerloadentry-)
-* [biz:ledger,load:rules](#-bizledgerloadrules-)
-* [biz:ledger,lost:entry](#-bizledgerlostentry-)
-* [biz:ledger,update:occur](#-bizledgerupdateoccur-)
-* [biz:ledger,update:entry](#-bizledgerupdateentry-)
+* [biz:ledger,get:account](#-bizledgergetaccount-)
+* [biz:ledger,get:book](#-bizledgergetbook-)
+* [biz:ledger,list:account](#-bizledgerlistaccount-)
+* [biz:ledger,list:book](#-bizledgerlistbook-)
+* [biz:ledger,list:balance](#-bizledgerlistbalance-)
+* [biz:ledger,list:entry](#-bizledgerlistentry-)
+* [biz:ledger,update:account](#-bizledgerupdateaccount-)
+* [biz:ledger,update:book](#-bizledgerupdatebook-)
+* [biz:ledger,void:entry](#-bizledgervoidentry-)
 
 
 <!--END:action-list-->
@@ -61,7 +64,28 @@ _None._
 
 ## Action Descriptions
 
-### &laquo; `accept:entry,biz:ledger` &raquo;
+### &laquo; `balance:account,biz:ledger` &raquo;
+
+No description provided.
+
+
+
+----------
+### &laquo; `balance:book,biz:ledger` &raquo;
+
+No description provided.
+
+
+
+----------
+### &laquo; `biz:ledger,create:account` &raquo;
+
+No description provided.
+
+
+
+----------
+### &laquo; `biz:ledger,create:book` &raquo;
 
 No description provided.
 
@@ -70,54 +94,68 @@ No description provided.
 ----------
 ### &laquo; `biz:ledger,create:entry` &raquo;
 
-Create ledgerral entry.
+No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,ensure:entry` &raquo;
+### &laquo; `biz:ledger,get:account` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,give:award` &raquo;
+### &laquo; `biz:ledger,get:book` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,load:entry` &raquo;
+### &laquo; `biz:ledger,list:account` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,load:rules` &raquo;
+### &laquo; `biz:ledger,list:book` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,lost:entry` &raquo;
+### &laquo; `biz:ledger,list:balance` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,update:occur` &raquo;
+### &laquo; `biz:ledger,list:entry` &raquo;
 
 No description provided.
 
 
 
 ----------
-### &laquo; `biz:ledger,update:entry` &raquo;
+### &laquo; `biz:ledger,update:account` &raquo;
+
+No description provided.
+
+
+
+----------
+### &laquo; `biz:ledger,update:book` &raquo;
+
+No description provided.
+
+
+
+----------
+### &laquo; `biz:ledger,void:entry` &raquo;
 
 No description provided.
 

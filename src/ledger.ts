@@ -55,42 +55,51 @@ function ledger(this: any, options: LedgerOptions) {
 
 
   async function msgCreateAccount(this: any, msg: {
-    id?: string // specify id
-    org_id?: string // Organization holding the ledger, defined externally
-    oref?: string // Organization holding the ledger, defined externally
-    path?: string | string[], // Classification path. e.g ['Asset']
-    name: string
-    normal: dc
+    account: {
+      id$?: string // specify id
+      org_id?: string // Organization holding the ledger, defined externally
+      oref?: string // Organization holding the ledger, defined externally
+      path?: string | string[], // Classification path. e.g ['Asset']
+      name: string
+      normal: dc
+    }
   }) {
     let seneca = this
 
-    let oref = null == msg.oref ? msg.org_id : msg.oref
-    let org_id = null == msg.org_id ? msg.oref : msg.org_id
+    let account = msg.account
+
+    if (null == account) {
+      return { ok: false, why: 'no-account' }
+    }
+
+    let oref = null == account.oref ? account.org_id : account.oref
+    let org_id = null == account.org_id ? account.oref : account.org_id
 
     if (null == org_id) {
       return { ok: false, why: 'no-org' }
     }
 
-    let name = msg.name
+    let name = account.name
 
     if (null == name || '' == name) {
       return { ok: false, why: 'no-name' }
     }
 
-    let path = ('string' === typeof msg.path ? msg.path.split('/') : msg.path) || []
+    let path = ('string' === typeof account.path ? account.path.split('/') :
+      account.path) || []
     let pathParts = Array(options.path.partSize).fill(null)
       .reduce(((a: any, _: string, i: number) =>
         (a['path' + i] = null == path[i] ? '' : path[i], a)), ({} as any))
 
-    let aref = msg.oref + '/' + path.join('/') + '/' + name
+    let aref = account.oref + '/' + path.join('/') + '/' + name
 
-    let normal = msg.normal
+    let normal = account.normal
     if ('credit' !== normal && 'debit' !== normal) {
       return { ok: false, why: 'invalid-normal' }
     }
 
     let accountEnt = await seneca.entity(accountCanon).data$({
-      id$: msg.id,
+      id$: account.id$,
       ...pathParts,
       org_id,
       oref,
@@ -107,7 +116,7 @@ function ledger(this: any, options: LedgerOptions) {
   async function msgGetAccount(this: any, msg: {
     id?: string
     account_id?: string
-    bref?: string // Account ref: aref/account-name/account-start
+    aref?: string // Account ref: aref/account-name/account-start
   }) {
     let seneca = this
 
@@ -141,10 +150,39 @@ function ledger(this: any, options: LedgerOptions) {
   }
 
 
-  async function msgUpdateAccount(this: any, msg: any) { }
+  async function msgUpdateAccount(this: any, msg: {
+    id?: string
+    account_id?: string
+    aref?: string // Account ref: oref/path/account-name
+    account: any
+  }) {
+    let seneca = this
+
+    let accountEnt = await getAccount(seneca, accountCanon, msg)
+
+    if (null == accountEnt) {
+      return { ok: false, why: 'account-not-found' }
+    }
+
+    if (null == msg.account) {
+      return { ok: false, why: 'no-account-update' }
+    }
 
 
-  async function msgBalanceAccount(this: any, msg: any) {
+    await accountEnt.data$(msg.account).save$()
+
+    return { ok: true, account: accountEnt.data$(false) }
+  }
+
+
+  // TODO: save to ledger/balance by book, default but optional
+  async function msgBalanceAccount(this: any, msg: {
+    account_id?: string
+    aref?: string
+    book_id?: string
+    bref?: string
+    save: boolean // true => save to ledger/balance
+  }) {
     let seneca = this
 
     let accountEnt = await getAccount(seneca, accountCanon, msg)
@@ -202,32 +240,40 @@ function ledger(this: any, options: LedgerOptions) {
 
 
   async function msgCreateBook(this: any, msg: {
-    id?: string
-    org_id?: string
-    oref?: string
-    name: string, // Not unique, repeated for time periods
-    start: number, // YYYYMMDD
-    end?: number, // YYYYMMDD
-    time?: any // time spec - timezone etc
+    book: {
+      id$?: string
+      org_id?: string
+      oref?: string
+      name: string, // Not unique, repeated for time periods
+      start: number, // YYYYMMDD
+      end?: number, // YYYYMMDD
+      time?: any // time spec - timezone etc
+    }
   }) {
     let seneca = this
 
-    let start = msg.start
+    let book = msg.book
+
+    if (null == book) {
+      return { ok: false, why: 'no-book' }
+    }
+
+    let start = book.start
     if (null == start) {
       return { ok: false, why: 'no-start' }
     }
 
-    let oref = null == msg.oref ? msg.org_id : msg.oref
-    let org_id = null == msg.org_id ? msg.oref : msg.org_id
+    let oref = null == book.oref ? book.org_id : book.oref
+    let org_id = null == book.org_id ? book.oref : book.org_id
 
     if (null == org_id) {
       return { ok: false, why: 'no-org' }
     }
 
-    let end = msg.end || -1
-    let time = msg.time || { kind: 'basic' }
+    let end = book.end || -1
+    let time = book.time || { kind: 'basic' }
 
-    let name = msg.name
+    let name = book.name
     if (null == name || '' == name) {
       return { ok: false, why: 'no-name' }
     }
@@ -235,7 +281,7 @@ function ledger(this: any, options: LedgerOptions) {
     let bref = oref + '/' + name + '/' + start
 
     let bookEnt = await seneca.entity(bookCanon).data$({
-      id$: msg.id,
+      id$: book.id$,
       org_id,
       oref,
       bref,
@@ -289,11 +335,43 @@ function ledger(this: any, options: LedgerOptions) {
   }
 
 
-  async function msgUpdateBook(this: any, msg: any) { }
+  async function msgUpdateBook(this: any, msg: {
+    id?: string
+    book_id?: string
+    bref?: string // Book ref: aref/book-name/book-start
+    book: any
+  }) {
+    let seneca = this
 
-  async function msgListBalance(this: any, msg: any) { }
-  async function msgBalanceBook(this: any, msg: any) { }
+    let bookEnt = await getBook(seneca, bookCanon, msg)
 
+    if (null == bookEnt) {
+      return { ok: false, why: 'book-not-found' }
+    }
+
+    if (null == msg.book) {
+      return { ok: false, why: 'no-book-update' }
+    }
+
+
+    await bookEnt.data$(msg.book).save$()
+
+    return { ok: true, book: bookEnt.data$(false) }
+  }
+
+
+  async function msgListBalance(this: any, msg: any) {
+    // TODO: list ledger/balance for book
+  }
+
+
+  async function msgBalanceBook(this: any, msg: any) {
+    // TODO: for all accounts in book (from entries), balance account,
+    // and save to ledger/balance
+  }
+
+
+  // TODO: mark ledger/balance stale
   async function msgCreateEntry(this: any, msg: {
     id?: string
     book_id?: string
@@ -441,7 +519,9 @@ function ledger(this: any, options: LedgerOptions) {
     return out
   }
 
-  async function msgVoidEntry(this: any, msg: any) { }
+  async function msgVoidEntry(this: any, msg: any) {
+    // TODO: generate counter entries
+  }
 
 
   async function msgListEntry(this: any, msg: {

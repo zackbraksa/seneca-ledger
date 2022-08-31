@@ -1,10 +1,10 @@
 {
   "name": "@seneca/ledger",
-  "version": "0.5.0",
+  "version": "0.1.0",
   "main": "dist/ledger.js",
   "type": "commonjs",
   "types": "dist/ledger.d.ts",
-  "description": "User Ledgerral business logic plugin for the Seneca platform.",
+  "description": "Ledger business logic plugin for the Seneca platform.",
   "homepage": "https://github.com/senecajs/seneca-ledger",
   "keywords": [
     "seneca",

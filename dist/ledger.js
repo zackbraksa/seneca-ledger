@@ -34,25 +34,30 @@ function ledger(options) {
         .message('list:entry', msgListEntry);
     async function msgCreateAccount(msg) {
         let seneca = this;
-        let oref = null == msg.oref ? msg.org_id : msg.oref;
-        let org_id = null == msg.org_id ? msg.oref : msg.org_id;
+        let account = msg.account;
+        if (null == account) {
+            return { ok: false, why: 'no-account' };
+        }
+        let oref = null == account.oref ? account.org_id : account.oref;
+        let org_id = null == account.org_id ? account.oref : account.org_id;
         if (null == org_id) {
             return { ok: false, why: 'no-org' };
         }
-        let name = msg.name;
+        let name = account.name;
         if (null == name || '' == name) {
             return { ok: false, why: 'no-name' };
         }
-        let path = ('string' === typeof msg.path ? msg.path.split('/') : msg.path) || [];
+        let path = ('string' === typeof account.path ? account.path.split('/') :
+            account.path) || [];
         let pathParts = Array(options.path.partSize).fill(null)
             .reduce(((a, _, i) => (a['path' + i] = null == path[i] ? '' : path[i], a)), {});
-        let aref = msg.oref + '/' + path.join('/') + '/' + name;
-        let normal = msg.normal;
+        let aref = account.oref + '/' + path.join('/') + '/' + name;
+        let normal = account.normal;
         if ('credit' !== normal && 'debit' !== normal) {
             return { ok: false, why: 'invalid-normal' };
         }
         let accountEnt = await seneca.entity(accountCanon).data$({
-            id$: msg.id,
+            id$: account.id$,
             ...pathParts,
             org_id,
             oref,
@@ -82,7 +87,19 @@ function ledger(options) {
         list = list.map((ent) => ent.data$(false));
         return { ok: true, q, list };
     }
-    async function msgUpdateAccount(msg) { }
+    async function msgUpdateAccount(msg) {
+        let seneca = this;
+        let accountEnt = await getAccount(seneca, accountCanon, msg);
+        if (null == accountEnt) {
+            return { ok: false, why: 'account-not-found' };
+        }
+        if (null == msg.account) {
+            return { ok: false, why: 'no-account-update' };
+        }
+        await accountEnt.data$(msg.account).save$();
+        return { ok: true, account: accountEnt.data$(false) };
+    }
+    // TODO: save to ledger/balance by book, default but optional
     async function msgBalanceAccount(msg) {
         let seneca = this;
         let accountEnt = await getAccount(seneca, accountCanon, msg);
@@ -128,24 +145,28 @@ function ledger(options) {
     }
     async function msgCreateBook(msg) {
         let seneca = this;
-        let start = msg.start;
+        let book = msg.book;
+        if (null == book) {
+            return { ok: false, why: 'no-book' };
+        }
+        let start = book.start;
         if (null == start) {
             return { ok: false, why: 'no-start' };
         }
-        let oref = null == msg.oref ? msg.org_id : msg.oref;
-        let org_id = null == msg.org_id ? msg.oref : msg.org_id;
+        let oref = null == book.oref ? book.org_id : book.oref;
+        let org_id = null == book.org_id ? book.oref : book.org_id;
         if (null == org_id) {
             return { ok: false, why: 'no-org' };
         }
-        let end = msg.end || -1;
-        let time = msg.time || { kind: 'basic' };
-        let name = msg.name;
+        let end = book.end || -1;
+        let time = book.time || { kind: 'basic' };
+        let name = book.name;
         if (null == name || '' == name) {
             return { ok: false, why: 'no-name' };
         }
         let bref = oref + '/' + name + '/' + start;
         let bookEnt = await seneca.entity(bookCanon).data$({
-            id$: msg.id,
+            id$: book.id$,
             org_id,
             oref,
             bref,
@@ -176,9 +197,26 @@ function ledger(options) {
         list = list.map((ent) => ent.data$(false));
         return { ok: true, q, list };
     }
-    async function msgUpdateBook(msg) { }
-    async function msgListBalance(msg) { }
-    async function msgBalanceBook(msg) { }
+    async function msgUpdateBook(msg) {
+        let seneca = this;
+        let bookEnt = await getBook(seneca, bookCanon, msg);
+        if (null == bookEnt) {
+            return { ok: false, why: 'book-not-found' };
+        }
+        if (null == msg.book) {
+            return { ok: false, why: 'no-book-update' };
+        }
+        await bookEnt.data$(msg.book).save$();
+        return { ok: true, book: bookEnt.data$(false) };
+    }
+    async function msgListBalance(msg) {
+        // TODO: list ledger/balance for book
+    }
+    async function msgBalanceBook(msg) {
+        // TODO: for all accounts in book (from entries), balance account,
+        // and save to ledger/balance
+    }
+    // TODO: mark ledger/balance stale
     async function msgCreateEntry(msg) {
         let seneca = this;
         let out = { ok: false };
@@ -254,7 +292,9 @@ function ledger(options) {
         out.debit = debitEnt.data$(false);
         return out;
     }
-    async function msgVoidEntry(msg) { }
+    async function msgVoidEntry(msg) {
+        // TODO: generate counter entries
+    }
     async function msgListEntry(msg) {
         let seneca = this;
         let q = msg.q || {};
