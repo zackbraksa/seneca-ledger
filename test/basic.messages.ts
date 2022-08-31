@@ -1,159 +1,303 @@
 // Basic ledgerral: sent email invite to a friend
 
 export default {
-  print: false,
+  print: true,
   pattern: 'biz:ledger',
   allow: { missing: true },
 
   calls: [
-    // User with id=u01 sends ledgeral to friend alice@example.com
-    // Creating:
-    //   - ledger/entry ledgerral record
-    //   - ledger/occur event record
-    //   - sent email to alice@example.com (mock/email record)
-    // Email sending to be implemented with @seneca/mail later
-    // NOTE: implementation is just hard-coded!
+
+    // See https://fundsnetservices.com/debits-and-credits
+
+    // Chart of Accounts
+
     {
-      name: 'create-alice',
-      pattern: 'create:entry', // call { biz:ledger, create:entry, ...params }
+      name: 'shop-a0',
+      pattern: 'create:account',
       params: {
-        user_id: 'u01',
-        kind: 'standard', // avoid using 'type', 'kind' has fewer conflicts
-        email: 'alice@example.com',
+        id: 'shop-a0',
+        oref: 'o0',
+        path: 'Asset',
+        name: 'Cash',
+        normal: 'debit'
       },
       out: {
         ok: true,
-        entry: {
-          user_id: 'u01', // _id suffix for foreign keys
-          kind: 'standard',
-          email: 'alice@example.com',
+        account: {
+          id: 'shop-a0',
+          path0: 'Asset',
+          path1: '',
+          path2: '',
+          org_id: 'o0',
+          oref: 'o0',
+          aref: 'o0/Asset/Cash',
+          path: ['Asset'],
+          name: 'Cash',
+          normal: 'debit',
+        }
+      }
+    },
+
+    {
+      name: 'shop-a1',
+      pattern: 'create:account',
+      params: {
+        id: 'shop-a1',
+        oref: 'o0',
+        path: 'Income',
+        name: 'Sales',
+        normal: 'credit'
+      },
+      out: {
+        ok: true,
+        account: {
+          id: 'shop-a1',
+          path0: 'Income',
+          path1: '',
+          path2: '',
+          org_id: 'o0',
+          oref: 'o0',
+          aref: 'o0/Income/Sales',
+          path: ['Income'],
+          name: 'Sales',
+          normal: 'credit',
+        }
+      }
+    },
+
+    {
+      name: 'shop-a2',
+      pattern: 'create:account',
+      params: {
+        id: 'shop-a2',
+        oref: 'o0',
+        path: 'Asset',
+        name: 'Office',
+        normal: 'debit'
+      },
+      out: {
+        ok: true,
+        account: {
+          id: 'shop-a2',
+          path0: 'Asset',
+          path1: '',
+          path2: '',
+          org_id: 'o0',
+          oref: 'o0',
+          aref: 'o0/Asset/Office',
+          path: ['Asset'],
+          name: 'Office',
+          normal: 'debit',
+        }
+      }
+    },
+
+    // Open a book
+
+    {
+      name: 'shop-b0',
+      pattern: 'create:book',
+      params: {
+        id: 'shop-b0',
+        oref: 'o0',
+        name: 'Q1',
+        start: 20220101,
+        end: 20220331,
+      },
+      out: {
+        ok: true,
+        book: {
+          id: 'shop-b0',
+          org_id: 'o0',
+          oref: 'o0',
+          bref: 'o0/Q1/20220101',
+          name: 'Q1',
+          start: 20220101,
+          end: 20220331,
+          time: { kind: 'basic' },
+        }
+      }
+    },
+
+    // Post journal entries
+
+    {
+      name: 'shop-e0',
+      pattern: 'create:entry',
+      params: {
+        id: 'shop-e0',
+        oref: 'o0',
+        bref: 'o0/Q1/20220101',
+        daref: 'o0/Asset/Cash',
+        caref: 'o0/Income/Sales',
+        val: 100,
+        desc: 'Jan Sales',
+        date: '20220131',
+        custom: {
+          geo: 'EU'
         },
-        occur: {
-          user_id: 'u01',
-          entry_kind: 'standard',
-          kind: 'create',
-          email: 'alice@example.com',
+        entry: {
+          xrep: 'alice'
         }
       },
-    },
-
-    // Print entire database
-    // { print: true, pattern: 'biz:null,role:mem-store,cmd:dump' },
-
-    // Validate the ledger/entry exists and is correct
-    {
-      pattern: 'biz:null,role:entity,base:ledger,name:entry,cmd:list',
-      out: [
-        {
-          id: '`create-alice:out.entry.id`',
-          user_id: 'u01',
+      out: {
+        ok: true,
+        credit: {
+          xrep: 'alice',
+          val: 100,
+          desc: 'Jan Sales',
           kind: 'standard',
-          email: 'alice@example.com',
+          oref: 'o0',
+          org_id: 'o0',
+          bref: 'o0/Q1/20220101',
+          book_id: 'shop-b0',
+          custom: { geo: 'EU' },
+          baseval: -1,
+          basecur: '---',
+          baserate: 0,
+          credit_id: 'shop-a1',
+          caref: 'o0/Income/Sales',
+          id: 'shop-e0'
         },
-      ],
+        debit: {
+          xrep: 'alice',
+          val: 100,
+          desc: 'Jan Sales',
+          kind: 'standard',
+          oref: 'o0',
+          org_id: 'o0',
+          bref: 'o0/Q1/20220101',
+          book_id: 'shop-b0',
+          custom: { geo: 'EU' },
+          baseval: -1,
+          basecur: '---',
+          baserate: 0,
+          debit_id: 'shop-a0',
+          daref: 'o0/Asset/Cash',
+          id: 'shop-e0'
+        }
+      }
     },
 
-    // Validate the ledger/occur exists and is correct
     {
-      pattern: 'biz:null,role:entity,base:ledger,name:occur,cmd:list',
-      out: [
-        {
-          // back ledgerences, see: https://github.com/rjrodger/inks
-          id: '`create-alice:out.occur.id`',
-          entry_id: '`create-alice:out.entry.id`',
-          entry_kind: 'standard',
-          kind: 'create',
-          email: 'alice@example.com',
-        },
-      ],
-    },
-
-    // Validate email was 'sent' (uses mock entity)
-    {
-      name: 'email-sent',
-      pattern: 'biz:null,role:entity,base:mock,name:email,cmd:list',
-      out: [
-        {
-          toaddr: 'alice@example.com',
-          fromaddr: 'invite@example.com',
-          kind: 'ledger',
-          code: 'invite',
-        },
-      ],
-    },
-
-    // Accept the ledgerral
-    {
-      name: 'accept-alice-token',
-      pattern: 'accept:entry',
+      name: 'shop-e1',
+      pattern: 'create:entry',
       params: {
-        token: '`create-alice:out.entry.token`',
-        user_id: 'u01',
+        id: 'shop-e1',
+        oref: 'o0',
+        bref: 'o0/Q1/20220101',
+        daref: 'o0/Asset/Office',
+        caref: 'o0/Asset/Cash',
+        val: 20,
+        desc: 'Buy desk',
+        date: '20220102',
       },
       out: {
         ok: true,
-        entry: {
-          user_id: 'u01',
+        credit: {
+          val: 20,
+          desc: 'Buy desk',
           kind: 'standard',
-          email: 'alice@example.com',
+          oref: 'o0',
+          org_id: 'o0',
+          bref: 'o0/Q1/20220101',
+          book_id: 'shop-b0',
+          custom: {},
+          baseval: -1,
+          basecur: '---',
+          baserate: 0,
+          credit_id: 'shop-a0',
+          caref: 'o0/Asset/Cash',
+          id: 'shop-e1'
         },
-        occur: {
-          entry_kind: 'standard',
-          entry_id: '`create-alice:out.entry.id`',
-          email: 'alice@example.com',
-          user_id: 'u01',
-          kind: 'accept',
-        },
-      },
+        debit: {
+          val: 20,
+          desc: 'Buy desk',
+          kind: 'standard',
+          oref: 'o0',
+          org_id: 'o0',
+          bref: 'o0/Q1/20220101',
+          book_id: 'shop-b0',
+          custom: {},
+          baseval: -1,
+          basecur: '---',
+          baserate: 0,
+          debit_id: 'shop-a2',
+          daref: 'o0/Asset/Office',
+          id: 'shop-e1'
+        }
+      }
     },
 
-    // Validate new ledger/occur record
     {
-      pattern: 'biz:null,role:entity,base:ledger,name:occur,cmd:load',
-      params: { q: { kind: 'accept' } },
-      out: {
-        entry_kind: 'standard',
-        entry_id: '`create-alice:out.entry.id`',
-        email: 'alice@example.com',
-        user_id: 'u01',
-        kind: 'accept',
-      },
-    },
-
-    // Validate new ledger/reward updated
-    {
-      pattern: 'biz:null,role:entity,base:ledger,name:reward,cmd:load',
+      name: 'shop-le0',
+      pattern: 'list:entry',
       params: {
-        q: {
-          entry_id: '`create-alice:out.entry.id`',
-        },
+        id: 'shop-e1',
+        oref: 'o0',
+        bref: 'o0/Q1/20220101',
       },
       out: {
-        entry_id: '`create-alice:out.entry.id`',
-        entry_kind: 'standard',
-        kind: 'accept',
-        award: 'incr',
-        count: 1, // alice@example.com accepted
-      },
+        ok: true,
+        credits: [
+          {
+            val: 100,
+            desc: 'Jan Sales',
+            caref: 'o0/Income/Sales',
+            id: 'shop-e0'
+          },
+          {
+            val: 20,
+            desc: 'Buy desk',
+            caref: 'o0/Asset/Cash',
+            id: 'shop-e1'
+          }
+        ],
+        debits: [
+          {
+            val: 100,
+            desc: 'Jan Sales',
+            daref: 'o0/Asset/Cash',
+            id: 'shop-e0'
+          },
+          {
+            val: 20,
+            desc: 'Buy desk',
+            daref: 'o0/Asset/Office',
+            id: 'shop-e1'
+          }
+        ],
+        q: { oref: 'o0', book_id: 'shop-b0' }
+      }
     },
 
-    // Check return for invalid entry token
+
+    // Balance
     {
-      name: 'accept-alice',
-      pattern: 'accept:entry',
+      name: 'shop-le0',
+      pattern: 'balance:account',
       params: {
-        token: '123',
+        id: 'shop-e1',
+        oref: 'o0',
+        bref: 'o0/Q1/20220101',
+        aref: 'o0/Asset/Cash',
       },
       out: {
-        ok: false,
-        why: 'entry-unknown',
-      },
-    },
+        ok: true,
+        account_id: 'shop-a0',
+        aref: 'o0/Asset/Cash',
+        book_id: 'shop-b0',
+        bref: 'o0/Q1/20220101',
+        start: 20220101,
+        end: 20220331,
+        creditTotal: 20,
+        debitTotal: 100,
+        creditCount: 1,
+        debitCount: 1,
+        normal: 'debit',
+        balance: 80
+      }
+    }
+
   ],
 }
-
-/* ADDITIONAL SCENARIOS
- * Another user send a ledgerral to alice@example.com
- *   - before acceptance
- *   - after acceptance
- */
