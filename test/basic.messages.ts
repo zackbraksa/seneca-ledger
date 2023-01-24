@@ -1,4 +1,4 @@
-// Basic ledgerral: sent email invite to a friend
+// Basic ledger: sent email invite to a friend
 
 export default {
   print: false,
@@ -291,15 +291,17 @@ export default {
     },
 
     {
+      // print: true,
       name: 'shop-le0',
       pattern: 'list:entry',
       params: {
-        id: 'shop-e1',
         oref: 'o0',
         bref: 'o0/Q1/20220101',
       },
       out: {
         ok: true,
+        creditTotal: 120,
+        debitTotal: 120,
         credits: [
           {
             val: 100,
@@ -328,9 +330,69 @@ export default {
             id: 'shop-e1'
           }
         ],
-        q: { oref: 'o0', book_id: 'shop-b0' }
+        cq: { oref: 'o0', book_id: 'shop-b0' },
+        dq: { oref: 'o0', book_id: 'shop-b0' }
       }
     },
+
+
+    {
+      // print: true,
+      name: 'shop-le1',
+      pattern: 'list:entry',
+      params: {
+        id: 'shop-e1',
+        oref: 'o0',
+        bref: 'o0/Q1/20220101',
+        aref: 'o0/Asset/Cash',
+      },
+      out: {
+        ok: true,
+        creditTotal: 20,
+        debitTotal: 100,
+        balance: 80,
+        credits: [
+          {
+            val: 20,
+            desc: 'Buy desk',
+            kind: 'standard',
+            oref: 'o0',
+            org_id: 'o0',
+            bref: 'o0/Q1/20220101',
+            book_id: 'shop-b0',
+            custom: {},
+            baseval: -1,
+            basecur: '---',
+            baserate: 0,
+            credit_id: 'shop-a0',
+            caref: 'o0/Asset/Cash',
+            id: 'shop-e1'
+          }
+        ],
+        debits: [
+          {
+            xrep: 'alice',
+            val: 100,
+            desc: 'Jan Sales',
+            kind: 'standard',
+            oref: 'o0',
+            org_id: 'o0',
+            bref: 'o0/Q1/20220101',
+            book_id: 'shop-b0',
+            custom: { geo: 'EU' },
+            baseval: -1,
+            basecur: '---',
+            baserate: 0,
+            debit_id: 'shop-a0',
+            daref: 'o0/Asset/Cash',
+            id: 'shop-e0'
+          }
+        ],
+        cq: { oref: 'o0', book_id: 'shop-b0', credit_id: 'shop-a0' },
+        dq: { oref: 'o0', book_id: 'shop-b0', debit_id: 'shop-a0' }
+      }
+    },
+
 
 
     // Balance

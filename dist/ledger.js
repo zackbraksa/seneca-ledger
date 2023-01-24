@@ -120,26 +120,28 @@ function ledger(options) {
         };
         let credits = await seneca.entity(creditCanon).list$(cq);
         let debits = await seneca.entity(debitCanon).list$(dq);
-        let creditTotal = credits.map((entry) => entry.val)
-            .reduce((total, val) => val + total, 0);
-        let debitTotal = debits.map((entry) => entry.val)
-            .reduce((total, val) => val + total, 0);
-        let balance = 'credit' === accountEnt.normal ? creditTotal - debitTotal :
-            debitTotal - creditTotal;
+        // let creditTotal = credits.map((entry: any) => entry.val)
+        //   .reduce((total: number, val: number) => val + total, 0)
+        // let debitTotal = debits.map((entry: any) => entry.val)
+        //   .reduce((total: number, val: number) => val + total, 0)
+        // let balance = 'credit' === accountEnt.normal ? creditTotal - debitTotal :
+        //   debitTotal - creditTotal
+        let totals = calcTotals(accountEnt, credits, debits);
         let out = {
             ok: true,
+            ...totals,
             account_id: accountEnt.id,
             aref: accountEnt.aref,
             book_id: bookEnt.id,
             bref: bookEnt.bref,
             start: bookEnt.start,
             end: bookEnt.end,
-            creditTotal: creditTotal,
-            debitTotal: debitTotal,
+            // creditTotal: creditTotal,
+            // debitTotal: debitTotal,
+            // balance,
             creditCount: credits.length,
             debitCount: debits.length,
             normal: accountEnt.normal,
-            balance,
         };
         return out;
     }
@@ -307,24 +309,32 @@ function ledger(options) {
             q.book_id = bookEnt.id;
         }
         let accountEnt = await getAccount(seneca, accountCanon, msg);
-        if (null != accountEnt) {
-            q.account_id = accountEnt.id;
-        }
         let credits = [];
+        let cq = { ...q };
+        if (null != accountEnt) {
+            cq.credit_id = accountEnt.id;
+        }
         if (null == msg.credit || !!msg.credit) {
-            credits = await seneca.entity(creditCanon).list$(q);
+            credits = await seneca.entity(creditCanon).list$(cq);
             credits = credits.map((entry) => entry.data$(false));
         }
         let debits = [];
+        let dq = { ...q };
+        if (null != accountEnt) {
+            dq.debit_id = accountEnt.id;
+        }
         if (null == msg.debit || !!msg.debit) {
-            debits = await seneca.entity(debitCanon).list$(q);
+            debits = await seneca.entity(debitCanon).list$(dq);
             debits = debits.map((entry) => entry.data$(false));
         }
+        let totals = calcTotals(accountEnt, credits, debits);
         let out = {
             ok: true,
+            ...totals,
             credits,
             debits,
-            q,
+            cq,
+            dq,
         };
         return out;
     }
@@ -354,6 +364,21 @@ async function getAccount(seneca, accountCanon, msg) {
         accountEnt = await seneca.entity(accountCanon).load$(msg.account_id);
     }
     return accountEnt;
+}
+function calcTotals(accountEnt, creditEnts, debitEnts) {
+    let creditTotal = creditEnts.map((entry) => entry.val)
+        .reduce((total, val) => val + total, 0);
+    let debitTotal = debitEnts.map((entry) => entry.val)
+        .reduce((total, val) => val + total, 0);
+    let balance = accountEnt ?
+        ('credit' === accountEnt.normal ?
+            creditTotal - debitTotal : debitTotal - creditTotal) :
+        undefined;
+    return {
+        creditTotal,
+        debitTotal,
+        balance,
+    };
 }
 // Default options.
 const defaults = {

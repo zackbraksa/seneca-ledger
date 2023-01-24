@@ -210,29 +210,32 @@ function ledger(this: any, options: LedgerOptions) {
     let credits = await seneca.entity(creditCanon).list$(cq)
     let debits = await seneca.entity(debitCanon).list$(dq)
 
-    let creditTotal = credits.map((entry: any) => entry.val)
-      .reduce((total: number, val: number) => val + total, 0)
+    // let creditTotal = credits.map((entry: any) => entry.val)
+    //   .reduce((total: number, val: number) => val + total, 0)
 
-    let debitTotal = debits.map((entry: any) => entry.val)
-      .reduce((total: number, val: number) => val + total, 0)
+    // let debitTotal = debits.map((entry: any) => entry.val)
+    //   .reduce((total: number, val: number) => val + total, 0)
 
-    let balance = 'credit' === accountEnt.normal ? creditTotal - debitTotal :
-      debitTotal - creditTotal
+    // let balance = 'credit' === accountEnt.normal ? creditTotal - debitTotal :
+    //   debitTotal - creditTotal
+
+    let totals = calcTotals(accountEnt, credits, debits)
 
     let out = {
       ok: true,
+      ...totals,
       account_id: accountEnt.id,
       aref: accountEnt.aref,
       book_id: bookEnt.id,
       bref: bookEnt.bref,
       start: bookEnt.start,
       end: bookEnt.end,
-      creditTotal: creditTotal,
-      debitTotal: debitTotal,
+      // creditTotal: creditTotal,
+      // debitTotal: debitTotal,
+      // balance,
       creditCount: credits.length,
       debitCount: debits.length,
       normal: accountEnt.normal,
-      balance,
     }
 
     return out
@@ -554,28 +557,37 @@ function ledger(this: any, options: LedgerOptions) {
 
     let accountEnt = await getAccount(seneca, accountCanon, msg)
 
-    if (null != accountEnt) {
-      q.account_id = accountEnt.id
-    }
-
-
     let credits = []
+    let cq = { ...q }
+    if (null != accountEnt) {
+      cq.credit_id = accountEnt.id
+    }
     if (null == msg.credit || !!msg.credit) {
-      credits = await seneca.entity(creditCanon).list$(q)
+      credits = await seneca.entity(creditCanon).list$(cq)
       credits = credits.map((entry: any) => entry.data$(false))
     }
 
     let debits = []
+    let dq = { ...q }
+    if (null != accountEnt) {
+      dq.debit_id = accountEnt.id
+    }
     if (null == msg.debit || !!msg.debit) {
-      debits = await seneca.entity(debitCanon).list$(q)
+      debits = await seneca.entity(debitCanon).list$(dq)
       debits = debits.map((entry: any) => entry.data$(false))
     }
 
+
+    let totals = calcTotals(accountEnt, credits, debits)
+
+
     let out = {
       ok: true,
+      ...totals,
       credits,
       debits,
-      q,
+      cq,
+      dq,
     }
 
     return out
@@ -583,7 +595,6 @@ function ledger(this: any, options: LedgerOptions) {
 
 
 }
-
 
 
 async function getBook(seneca: any, bookCanon: string, msg: {
@@ -625,6 +636,25 @@ async function getAccount(seneca: any, accountCanon: string, msg: {
   return accountEnt
 }
 
+
+function calcTotals(accountEnt: any, creditEnts: any[], debitEnts: any) {
+  let creditTotal = creditEnts.map((entry: any) => entry.val)
+    .reduce((total: number, val: number) => val + total, 0)
+
+  let debitTotal = debitEnts.map((entry: any) => entry.val)
+    .reduce((total: number, val: number) => val + total, 0)
+
+  let balance = accountEnt ?
+    ('credit' === accountEnt.normal ?
+      creditTotal - debitTotal : debitTotal - creditTotal) :
+    undefined
+
+  return {
+    creditTotal,
+    debitTotal,
+    balance,
+  }
+}
 
 
 // Default options.
