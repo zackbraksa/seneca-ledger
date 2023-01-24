@@ -1,4 +1,4 @@
-declare type LedgerOptions = {
+type LedgerOptions = {
     debug: boolean;
     path: {
         partSize: number;
